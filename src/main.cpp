@@ -6,13 +6,13 @@
 #include <ctime>
 
 
-constexpr int N = 128;
+constexpr int N = 64;
 constexpr double REYNOLDS_NUMBER = 1E6;
 constexpr int GRAPHICS_UPDATE = 100;
 
-constexpr int Q = 9;					   // number of discrete velocity sections used
-constexpr double DENSITY = 2.7;            // fluid density in lattice units
-constexpr double LID_VELOCITY = 0.05;      // lid velocity in lattice units
+constexpr int Q = 9;
+constexpr double DENSITY = 2.7;
+constexpr double LID_VELOCITY = 0.05;
 
 constexpr int WIDTH  = 800;
 constexpr int HEIGHT = 800;
@@ -21,6 +21,7 @@ float *scalar;
 
 void showGraphics(double xmin, double xmax, double ymin, double ymax, const double *ux, const double *uy) {
 
+  glViewport(0, 0, WIDTH, HEIGHT);
   glClearColor (1.0, 1.0, 1.0, 0.0);
 
   glMatrixMode(GL_PROJECTION);
@@ -36,7 +37,6 @@ void showGraphics(double xmin, double xmax, double ymin, double ymax, const doub
   float dx = (xmax - xmin) / NX;
   float dy = (ymax - ymin) / NY;
 
-
   float min_curl = -0.02;
   float max_curl =  0.02;
 
@@ -49,10 +49,10 @@ void showGraphics(double xmin, double xmax, double ymin, double ymax, const doub
 	  int yin = j * N / NY;
 
 	  // get locations of 4 data points inside which this pixel lies
-	  int idx00 = (xin) * N + (yin);		 // (0,0)
-	  int idx01 = (xin) * N + (yin + 1);	 // (0,1)
-	  int idx10 = (xin+1) * N + (yin);		 // (1,0)
-	  int idx11 = (xin+1) * N + (yin + 1);   // (1,1)
+	  int idx00 = (xin) * N + (yin);
+	  int idx01 = (xin) * N + (yin + 1);
+	  int idx10 = (xin+1) * N + (yin);
+	  int idx11 = (xin+1) * N + (yin + 1);
 
 	  //			   Neighbors
 	  //
@@ -68,14 +68,14 @@ void showGraphics(double xmin, double xmax, double ymin, double ymax, const doub
 	  //               |       |
 	  //               0m      1m
 
-	  int idxm0 = (xin > 0)   ? (xin-1) * N+ (yin  ) : idx00;
-	  int idx0m = (yin > 0)   ? (xin  ) * N+ (yin-1) : idx00;
-	  int idx1m = (yin > 0)   ? (xin+1) * N+ (yin-1) : idx10;
-	  int idxp0 = (xin < N-1) ? (xin+2) * N+ (yin  ) : idx10;
-	  int idxp1 = (xin < N-1) ? (xin+2) * N+ (yin+1) : idx11;
-	  int idx1p = (yin < N-1) ? (xin+1) * N+ (yin+2) : idx11;
-	  int idx0p = (yin < N-1) ? (xin  ) * N+ (yin+2) : idx01;
-	  int idxm1 = (xin > 0)   ? (xin-1) * N+ (yin+1) : idx01;
+	  int idxm0 = (xin > 0)   ? (xin-1) * N + (yin  ) : idx00;
+	  int idx0m = (yin > 0)   ? (xin  ) * N + (yin-1) : idx00;
+	  int idx1m = (yin > 0)   ? (xin+1) * N + (yin-1) : idx10;
+	  int idxp0 = (xin < N-1) ? (xin+2) * N + (yin  ) : idx10;
+	  int idxp1 = (xin < N-1) ? (xin+2) * N + (yin+1) : idx11;
+	  int idx1p = (yin < N-1) ? (xin+1) * N + (yin+2) : idx11;
+	  int idx0p = (yin < N-1) ? (xin  ) * N + (yin+2) : idx01;
+	  int idxm1 = (xin > 0)   ? (xin-1) * N + (yin+1) : idx01;
 
 	  // calculate the normalized coordinates of the pixel
 	  float xfl = (float)i * (float)N / (float) NX;
@@ -83,7 +83,7 @@ void showGraphics(double xmin, double xmax, double ymin, double ymax, const doub
 	  float x = xfl - (float)xin;
 	  float y = yfl - (float)yin;
 
-	  // calculate "curl" of the velocity field at the 4 data points
+	  // calculate curl of the velocity field at the 4 data points
 	  float dVdx_00 = uy[idx10] - uy[idxm0];
 	  float dVdx_10 = uy[idxp0] - uy[idx00];
 	  float dVdx_01 = uy[idx11] - uy[idxm1];
@@ -104,9 +104,8 @@ void showGraphics(double xmin, double xmax, double ymin, double ymax, const doub
 	  // float uy_interp = uy[idx00] * (1.0 - x) * (1.0 - y) + uy[idx10] * x * (1.0 - y) + uy[idx01] * (1.0 - x) * y + uy[idx11] * x * y;
 	  float curl_z_in = curl_z_00 * (1.0 - x) * (1.0 - y) + curl_z_10 * x * (1.0 - y) + curl_z_01 * (1.0 - x) * y + curl_z_11 * x * y;
 
-	  // this is the value we want to plot at this pixel (should be in the range [0-1])
 	  // scalar[i*WIDTH + j] = pow((ux_interp*ux_interp + uy_interp*uy_interp), 0.5) / LID_VELOCITY;   // normalized velocity magnitude
-	  scalar[i*WIDTH + j] = (max_curl - curl_z_in) / (max_curl - min_curl);                         // normalized vorticity
+	  scalar[i * WIDTH + j] = (max_curl - curl_z_in) / (max_curl - min_curl);                         // normalized vorticity
 
 	  float x_actual = xmin + i * dx;
 	  float y_actual = ymin + j * dy;
@@ -126,8 +125,8 @@ void showGraphics(double xmin, double xmax, double ymin, double ymax, const doub
 		B = 0;
 	  }
 
-	  glColor3f(R,G,B);
-	  glRectf (x_actual, y_actual, x_actual + dx, y_actual + dy);
+	  glColor3f(std::abs(R), std::abs(G), std::abs(B));
+	  glRectf(x_actual, y_actual, x_actual + dx, y_actual + dy);
 	}
   }
 
@@ -144,8 +143,6 @@ void D3Q9(double *ex, double *ey, int *oppos, double *wt) {
   ex[6] = -1.0;   ey[6] =  1.0;   wt[6] = 1.0 / 36.0;
   ex[7] = -1.0;   ey[7] = -1.0;   wt[7] = 1.0 / 36.0;
   ex[8] =  1.0;   ey[8] = -1.0;   wt[8] = 1.0 / 36.0;
-
-  // define opposite (anti) sections (useful for implementing bounce back)
 
   oppos[0] = 0;      //      6        2        5
   oppos[1] = 3;      //               ^
@@ -171,7 +168,7 @@ void initialize(const int N, const int Q, const double DENSITY, const double LID
 	  rho[index] = DENSITY;
 	  ux[index] = 0.0;       // x-component of velocity
 	  uy[index] = 0.0;       // x-component of velocity
-	  sigma[index] = 0.0;       // rate-of-strain field
+	  sigma[index] = 0.0;    // rate-of-strain field
 
 	  if(j == N - 1)
 		ux[index] = LID_VELOCITY;
@@ -211,7 +208,7 @@ void collideAndStream(
 	for(int j = 1; j < N-1; j++) {
 
 	  // natural index
-	  int index = i*N + j;  // column-major ordering
+	  int index = i * N + j;  // column-major ordering
 
 	  // calculate fluid viscosity based on the Reynolds number
 	  double kinematicViscosity = LID_VELOCITY * (double) N / REYNOLDS_NUMBER;
@@ -275,7 +272,7 @@ void macroVar(
 	for(int j = 1; j < N-1; j++) {
 
 	  // natural index
-	  int index = i*N + j;  // column-major ordering
+	  int index = i * N + j;  // column-major ordering
 
 	  // push f_new into f
 	  for(int a = 0; a < Q; a++) {
@@ -284,15 +281,15 @@ void macroVar(
 	  }
 
 	  // update density at interior nodes
-	  rho[index]=0.0;
+	  rho[index] = 0.0;
 	  for(int a = 0; a < Q; a++) {
 		int index_f = a + index*Q;
 		rho[index] += f_new[index_f];
 	  }
 
 	  // update velocity at interior nodes
-	  double velx=0.0;
-	  double vely=0.0;
+	  double velx = 0.0;
+	  double vely = 0.0;
 	  for(int a = 0; a < Q; a++) {
 		int index_f = a + index*Q;
 		velx += f_new[index_f]*ex[a];
@@ -323,8 +320,8 @@ void macroVar(
 	  sigma[index] = pow(sum_xx,2) + pow(sum_xy,2) + pow(sum_xz,2) + pow(sum_yx,2) + pow(sum_yy,2) + pow(sum_yz,2) + pow(sum_zx,2) + pow(sum_zy,2) + pow(sum_zz,2);
 	  sigma[index] = pow(sigma[index],0.5);
 
-	}//j
-  }//i
+	}
+  }
 }
 
 int main(int argc, char* argv[]) {
@@ -382,7 +379,6 @@ int main(int argc, char* argv[]) {
 	  glfwSwapBuffers(window);
 	  glfwPollEvents();
 	}
-
   }
 
   delete [] f;
