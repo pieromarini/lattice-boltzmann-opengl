@@ -46,7 +46,7 @@ GL/glext.h
 GL/glu.h
 -
 
-/home/piero/Development/Cpp/tmp/src/main.cpp
+/home/piero/Development/Cpp/lattice-boltzmann/src/main.cpp
 GL/glew.h
 -
 GLFW/glfw3.h
