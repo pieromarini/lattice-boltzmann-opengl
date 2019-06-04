@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++17 -g -Wall -O3  -rdynamic CMakeFiles/lattice_fluids.dir/src/main.cpp.o  -o lattice_fluids lib/glfw/src/libglfw3.a -lOpenGL -lGLX -lGLU -lGLEW -lrt -lm -ldl -lX11 -lpthread -lXrandr -lXinerama -lXxf86vm -lXcursor 
