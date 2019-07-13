@@ -10,8 +10,8 @@ constexpr int N = 64;
 constexpr double REYNOLDS_NUMBER = 1E6;
 constexpr int GRAPHICS_UPDATE = 100;
 
-constexpr int Q = 9;
-constexpr double DENSITY = 2.7;
+constexpr int Q = 17;
+constexpr double DENSITY = 3.1;
 constexpr double LID_VELOCITY = 0.05;
 
 constexpr int WIDTH  = 800;
